@@ -1,0 +1,6 @@
+{
+  "name": "Plutogram",
+  "description": "Plutogram — Telegram-style universal social, creator video platform, and freelance utility with AI Video Hook Studio.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

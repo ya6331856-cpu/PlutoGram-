@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Planet Pluto Glow Aura -->
+    <path
+        android:pathData="M54,34 A20,20 0 1,0 54,74 A20,20 0 1,0 54,34 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:centerX="54"
+                android:centerY="54"
+                android:gradientRadius="20"
+                android:type="radial">
+                <item android:offset="0.0" android:color="#4D00E5FF" />
+                <item android:offset="0.7" android:color="#222AABEE" />
+                <item android:offset="1.0" android:color="#00000000" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Orbital Ring (Back half - behind the planet) -->
+    <!-- Tilted ellipse around (54,54) -->
+    <path
+        android:pathData="M33,48 C37,42 56,41 71,46 C77,48 78,52 75,55 C71,51 55,46 39,49 C35,50 32,50 33,48 Z"
+        android:fillColor="#882AABEE" />
+
+    <!-- Planet Pluto Body (Globe) -->
+    <path
+        android:pathData="M54,38 A16,16 0 1,0 54,70 A16,16 0 1,0 54,38 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="44"
+                android:startY="42"
+                android:endX="66"
+                android:endY="66"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#1F4264" />
+                <item android:offset="0.4" android:color="#142B43" />
+                <item android:offset="0.8" android:color="#0C1B2B" />
+                <item android:offset="1.0" android:color="#060F1A" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Planet Pluto Crescent Atmosphere Rim Lighting (Top-Left) -->
+    <path
+        android:pathData="M44,42 C49,38 56,38 62,41 C57,43 51,46 47,52 C45,55 44,61 45,66 C40,62 38,54 40,48 C41,45 42,43 44,42 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="39"
+                android:startY="39"
+                android:endX="52"
+                android:endY="52"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#CC38BDF8" />
+                <item android:offset="0.6" android:color="#5500E5FF" />
+                <item android:offset="1.0" android:color="#0000E5FF" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Orbital Ring (Front half - crossing in front of the planet) -->
+    <path
+        android:pathData="M31,52 C29,56 34,60 44,63 C57,67 72,64 77,58 C79,55 77,52 74,51 C70,55 56,61 44,58 C37,56 32,53 31,52 Z"
+        android:fillColor="#E600E5FF" />
+    <!-- Bright inner ring spine -->
+    <path
+        android:pathData="M31,53 C30,55 35,59 45,61 C57,64 71,62 76,57"
+        android:strokeWidth="1.2"
+        android:strokeColor="#FFFFFF" />
+
+    <!-- Rocket Exhaust Plume / Flame (Blasting towards bottom-left) -->
+    <path
+        android:pathData="M45,59 L35,69 C33,71 31,69 33,67 L42,56 Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="45"
+                android:startY="57"
+                android:endX="32"
+                android:endY="70"
+                android:type="linear">
+                <item android:offset="0.0" android:color="#FFFFFF" />
+                <item android:offset="0.3" android:color="#00E5FF" />
+                <item android:offset="0.7" android:color="#2AABEE" />
+                <item android:offset="1.0" android:color="#002AABEE" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Rocket Motion Flare Particles -->
+    <path
+        android:pathData="M31,73 A1.5,1.5 0 1,0 31,76 A1.5,1.5 0 1,0 31,73 Z"
+        android:fillColor="#AA00E5FF" />
+    <path
+        android:pathData="M27,78 A1,1 0 1,0 27,80 A1,1 0 1,0 27,78 Z"
+        android:fillColor="#6638BDF8" />
+
+    <!-- Rocket Left Wing / Fin -->
+    <path
+        android:pathData="M44,53 L38,57 L44,60 Z"
+        android:fillColor="#38BDF8" />
+
+    <!-- Rocket Right Wing / Fin -->
+    <path
+        android:pathData="M52,45 L56,41 L57,48 Z"
+        android:fillColor="#2487C7" />
+
+    <!-- Rocket Main Fuselage Body (Aerodynamic White Shuttle Launching 45°) -->
+    <path
+        android:pathData="M44,59 L43,54 C44,50 51,43 65,36 C64,48 57,55 53,56 L48,55 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Rocket Nose Tip Flare -->
+    <path
+        android:pathData="M65,36 L62,39 L60,37 Z"
+        android:fillColor="#F0F9FF" />
+
+    <!-- Rocket Fuselage Shading (Bottom edge) -->
+    <path
+        android:pathData="M44,59 L48,55 L53,56 C50,56 46,57 44,59 Z"
+        android:fillColor="#CBD5E1" />
+
+    <!-- Rocket Cockpit Window (Circular Cyan Portal) -->
+    <path
+        android:pathData="M53,46 A2.5,2.5 0 1,0 53,51 A2.5,2.5 0 1,0 53,46 Z"
+        android:fillColor="#00E5FF" />
+    <path
+        android:pathData="M53.5,47 A0.9,0.9 0 1,0 53.5,48.8 A0.9,0.9 0 1,0 53.5,47 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Star Twinkle on Top Right -->
+    <path
+        android:pathData="M73,34 L74.2,37.5 L77.7,38.7 L74.2,39.9 L73,43.4 L71.8,39.9 L68.3,38.7 L71.8,37.5 Z"
+        android:fillColor="#FFFFFF" />
+</vector>
