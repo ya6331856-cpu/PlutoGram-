@@ -53,6 +53,130 @@ fun HomeScreen(
             StoriesSection(stories = uiState.stories)
         }
 
+        // Productivity vs. Consumption Motivational Banner
+        item {
+            FrostedGlassBox(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 6.dp)
+                    .testTag("productivity_vs_consumption_banner"),
+                borderColor = TelegramCyanAccent
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.linearGradient(
+                                            listOf(TelegramBlueBright, TelegramCyanAccent)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Bolt,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = "Productivity vs. Consumption",
+                                    color = Color.White,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Shift from passive scrolling to active creation & monetization",
+                                    color = TelegramTextSecondary,
+                                    fontSize = 10.sp
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(TelegramEmerald.copy(alpha = 0.2f))
+                                .border(1.dp, TelegramEmerald.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                        ) {
+                            Text(
+                                text = "+$84.50 Today",
+                                color = TelegramEmerald,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    // Metric Strip & Action Buttons
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Timer,
+                                contentDescription = null,
+                                tint = TelegramCyanAccent,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Text(
+                                text = "${uiState.creatorMinutesCreatedToday}m Created vs ${uiState.creatorMinutesConsumedToday}m Consumed",
+                                color = TelegramCyanAccent,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            TextButton(
+                                onClick = { viewModel.openCreatorMindsetDialog(true) },
+                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                modifier = Modifier.height(28.dp)
+                            ) {
+                                Text("Value Hub 🧠", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+
+                            Button(
+                                onClick = {
+                                    viewModel.selectTab(2)
+                                    viewModel.setStudioSubTab(com.example.viewmodel.StudioSubTab.HOOK_STUDIO)
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = TelegramBlueBright),
+                                shape = RoundedCornerShape(6.dp),
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+                                modifier = Modifier.height(28.dp)
+                            ) {
+                                Text("AI Studio ⚡", color = TelegramDarkBg, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Posts List (Uncluttered main social feed)
         items(uiState.posts, key = { it.id }) { post ->
             PostCard(
@@ -61,7 +185,8 @@ fun HomeScreen(
                 onReact = { emoji -> viewModel.reactToPost(post.id, emoji) },
                 onSave = { viewModel.toggleSavePost(post.id) },
                 onComment = { viewModel.recordInteraction(post.category, 2, "Commented on post") },
-                onShare = { viewModel.recordInteraction(post.category, 3, "Shared post") }
+                onShare = { viewModel.recordInteraction(post.category, 3, "Shared post") },
+                onTip = { viewModel.openTipCreatorDialog(post.authorName, post.authorAvatar, post.content) }
             )
         }
     }
@@ -167,7 +292,8 @@ fun PostCard(
     onReact: (String) -> Unit,
     onSave: () -> Unit,
     onComment: () -> Unit,
-    onShare: () -> Unit
+    onShare: () -> Unit,
+    onTip: () -> Unit = {}
 ) {
     var showReactionPicker by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
@@ -450,6 +576,42 @@ fun PostCard(
                             .size(19.dp)
                             .clickable(onClick = onShare)
                     )
+
+                    // Tip Creator Button
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        Color(0xFFFFD700).copy(alpha = 0.2f),
+                                        Color(0xFFFF9100).copy(alpha = 0.2f)
+                                    )
+                                )
+                            )
+                            .border(1.dp, Color(0xFFFFD700).copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                            .clickable(onClick = onTip)
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .testTag("tip_creator_button_${post.id}")
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MonetizationOn,
+                                contentDescription = "Tip Creator",
+                                tint = Color(0xFFFFD700),
+                                modifier = Modifier.size(13.dp)
+                            )
+                            Text(
+                                text = "Tip",
+                                color = Color(0xFFFFD700),
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
 
                     Icon(
                         imageVector = if (post.isSaved) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,

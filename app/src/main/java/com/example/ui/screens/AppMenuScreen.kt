@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -26,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.example.model.NetworkBandwidthState
+import com.example.model.VideoQualityPreset
 import com.example.ui.components.FrostedGlassBox
 import com.example.ui.theme.*
 import com.example.viewmodel.TelePulseUiState
@@ -331,6 +334,89 @@ fun AppMenuScreen(
                                 tag = "menu_shortcut_thumbnail"
                             )
                         }
+
+                        // Row 5: Creator Studio Dashboard & Live Analytics
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            MenuShortcutCard(
+                                title = "Creator Studio Dashboard",
+                                subtitle = "Live 48h Views & Audience Analytics",
+                                icon = Icons.Default.Dashboard,
+                                iconTint = TelegramCyanAccent,
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    onDismiss()
+                                    viewModel.selectTab(2)
+                                    viewModel.setStudioSubTab(com.example.viewmodel.StudioSubTab.CREATOR_DASHBOARD)
+                                },
+                                tag = "menu_shortcut_dashboard"
+                            )
+                        }
+                    }
+                }
+
+                // --- Creator Monetization & Partner Earnings Card ---
+                item {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    FrostedGlassBox(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onNavigateToProfile()
+                            }
+                            .testTag("menu_monetization_card"),
+                        borderColor = TelegramEmerald
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(TelegramEmerald.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MonetizationOn,
+                                        contentDescription = null,
+                                        tint = TelegramEmerald,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                                Column {
+                                    Text(
+                                        text = "Creator Earnings & Partner Hub",
+                                        color = Color.White,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "$${String.format(java.util.Locale.US, "%,.2f", uiState.monetization.availableBalance)} available • 70% Ad Split",
+                                        color = TelegramEmerald,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            }
+
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                                contentDescription = null,
+                                tint = TelegramTextSecondary,
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
                     }
                 }
 
@@ -379,6 +465,166 @@ fun AppMenuScreen(
                                         color = TelegramCyanAccent,
                                         fontSize = 11.sp,
                                         lineHeight = 15.sp
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // --- Shifted & Advanced: Strict Ultra-HD Video Quality Policy ---
+                item {
+                    Spacer(modifier = Modifier.height(14.dp))
+                    FrostedGlassBox(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("menu_video_quality_card"),
+                        borderColor = TelegramCyanAccent
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .clip(CircleShape)
+                                        .background(TelegramCyanAccent.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.HighQuality,
+                                        contentDescription = null,
+                                        tint = TelegramCyanAccent,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Strict Ultra-HD Quality Policy",
+                                        color = TelegramTextPrimary,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = "Zero Quality Drop • Displays in Native Resolution",
+                                        color = TelegramTextSecondary,
+                                        fontSize = 11.sp
+                                    )
+                                }
+                            }
+
+                            // Strict Mode Switch Row
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(Color(0x331C2938))
+                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Never Degrade Video Quality",
+                                        color = TelegramTextPrimary,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        text = "If internet is slow, pause & buffer in Full HD instead of dropping to blurry 240p/360p",
+                                        color = TelegramTextSecondary,
+                                        fontSize = 10.sp,
+                                        lineHeight = 13.sp
+                                    )
+                                }
+                                Switch(
+                                    checked = uiState.isStrictQualityMode,
+                                    onCheckedChange = { viewModel.setStrictQualityMode(it) },
+                                    colors = SwitchDefaults.colors(
+                                        checkedThumbColor = Color.White,
+                                        checkedTrackColor = TelegramCyanAccent
+                                    ),
+                                    modifier = Modifier.scale(0.85f)
+                                )
+                            }
+
+                            // Quality Presets
+                            Text(
+                                text = "Selected Stream Resolution:",
+                                color = TelegramTextSecondary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                VideoQualityPreset.entries.forEach { preset ->
+                                    val isSelected = uiState.selectedQualityPreset == preset
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(if (isSelected) TelegramBlueBright.copy(alpha = 0.25f) else Color(0x221C2938))
+                                            .border(1.dp, if (isSelected) TelegramCyanAccent else TelegramGlassBorderSubtle, RoundedCornerShape(8.dp))
+                                            .clickable { viewModel.setQualityPreset(preset) }
+                                            .padding(vertical = 8.dp, horizontal = 4.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = preset.badge,
+                                            color = if (isSelected) TelegramCyanAccent else TelegramTextSecondary,
+                                            fontSize = 11.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Network Status & Simulation Test Button
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                if (uiState.networkBandwidth == NetworkBandwidthState.SLOW_NETWORK)
+                                                    TelegramCoral
+                                                else
+                                                    TelegramEmerald
+                                            )
+                                    )
+                                    Text(
+                                        text = "${uiState.networkBandwidth.title} (${uiState.simulatedSpeedMbps} Mbps)",
+                                        color = TelegramTextSecondary,
+                                        fontSize = 11.sp
+                                    )
+                                }
+
+                                TextButton(
+                                    onClick = { viewModel.simulateSlowNetworkToggle() },
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp)
+                                ) {
+                                    Text(
+                                        text = if (uiState.networkBandwidth == NetworkBandwidthState.SLOW_NETWORK) "Restore 5G" else "Test Slow Network",
+                                        color = TelegramCyanAccent,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }

@@ -28,7 +28,8 @@ fun CreateHubDialog(
     onDismiss: () -> Unit,
     onOpenRecordCamera: () -> Unit,
     onOpenAiStudio: () -> Unit,
-    onCreatePost: () -> Unit
+    onCreatePost: () -> Unit,
+    onOpenCreatorDashboard: () -> Unit = {}
 ) {
     Dialog(onDismissRequest = onDismiss) {
         FrostedGlassBox(
@@ -130,6 +131,21 @@ fun CreateHubDialog(
                         onCreatePost()
                     },
                     tag = "create_post_option"
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Option 4: Creator Studio & Analytics
+                CreateHubOption(
+                    title = "Creator Studio & Analytics",
+                    subtitle = "Track subscribers, revenue, and 48h realtime views",
+                    icon = Icons.Default.Dashboard,
+                    iconGradient = listOf(Color(0xFF7C4DFF), TelegramBlueBright),
+                    onClick = {
+                        onDismiss()
+                        onOpenCreatorDashboard()
+                    },
+                    tag = "create_dashboard_option"
                 )
             }
         }

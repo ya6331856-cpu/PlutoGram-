@@ -213,3 +213,43 @@ data class Category(
     val iconEmoji: String,
     val count: String
 )
+
+data class SubscriptionTier(
+    val id: String,
+    val name: String,
+    val priceMonthly: Double,
+    val priceYearly: Double,
+    val badgeEmoji: String,
+    val badgeColorHex: Long,
+    val tagLine: String,
+    val features: List<String>,
+    val isPopular: Boolean = false,
+    val isCurrentTier: Boolean = false
+)
+
+enum class VideoAiToolType(val title: String, val iconEmoji: String, val description: String) {
+    UPSCALE_4K("4K Neural Upscaler", "✨", "Super-resolution 4K HDR boost with neural denoising"),
+    KINETIC_SUBTITLES("Kinetic AI Subtitles", "💬", "Dynamic word-by-word animated captions with sound FX"),
+    VOCAL_ISOLATION("Studio Vocal Cleaner", "🎙️", "Remove background noise & boost audio fidelity to 96kHz"),
+    SCRIPT_DOCTOR("Gemini Script Doctor", "🧠", "Analyze retention drop-off & optimize viral 3s hooks")
+}
+
+data class VideoEnhancementJob(
+    val id: String,
+    val toolType: VideoAiToolType,
+    val videoTitle: String,
+    val status: String, // "Queued", "Processing", "Completed"
+    val progress: Float = 0f,
+    val resultPreviewUrl: String? = null,
+    val metadataSummary: String = "",
+    val timestamp: String = "Just now"
+)
+
+data class GeminiScriptOptimization(
+    val viralScore: Int,
+    val retentionDropRisk: String, // e.g. "Low (8% drop risk)"
+    val hookVariations: List<String>,
+    val pacingPointers: List<String>,
+    val recommendedAudienceReaction: String
+)
+

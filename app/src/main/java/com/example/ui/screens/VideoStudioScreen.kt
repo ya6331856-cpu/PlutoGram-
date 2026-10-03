@@ -33,8 +33,10 @@ import com.example.data.SampleData
 import com.example.model.ExtractedHook
 import com.example.model.LongVideo
 import com.example.ui.components.AudioWaveformVisualizer
+import com.example.ui.components.CreatorDashboardView
 import com.example.ui.components.FrostedChip
 import com.example.ui.components.FrostedGlassBox
+import com.example.ui.components.VideoAiEnhancerView
 import com.example.ui.theme.*
 import com.example.viewmodel.StudioSubTab
 import com.example.viewmodel.TelePulseUiState
@@ -52,11 +54,46 @@ fun VideoStudioScreen(
             .background(TelegramDarkBg)
             .testTag("video_studio_screen")
     ) {
-        // Studio Segment Switcher: [ Long Videos ] [ AI Video Hook Studio ]
+        // VIP Tiers Pill Banner
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 2.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                Text("Studio Engine:", color = TelegramTextSecondary, fontSize = 10.sp)
+                Text("Gemini 3.5 Flash Active ⚡", color = TelegramCyanAccent, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xFFFFD700).copy(alpha = 0.18f))
+                    .border(1.dp, Color(0xFFFFD700).copy(alpha = 0.6f), RoundedCornerShape(12.dp))
+                    .clickable { viewModel.openSubscriptionModal(true) }
+                    .padding(horizontal = 8.dp, vertical = 3.dp)
+                    .testTag("open_vip_tiers_button")
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Icon(Icons.Default.Stars, contentDescription = null, tint = Color(0xFFFFD700), modifier = Modifier.size(13.dp))
+                    Text("VIP Tiers 👑", color = Color(0xFFFFD700), fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+        }
+
+        // Studio Segment Switcher: [ Dashboard ] [ AI Hook Studio ] [ Enhancer ] [ Videos ]
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -68,10 +105,83 @@ fun VideoStudioScreen(
                     .padding(3.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Long Videos Tab
+                // 1. Creator Dashboard Tab
                 Box(
                     modifier = Modifier
                         .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            if (uiState.activeStudioMode == StudioSubTab.CREATOR_DASHBOARD)
+                                TelegramBlue.copy(alpha = 0.35f)
+                            else Color.Transparent
+                        )
+                        .clickable { viewModel.setStudioSubTab(StudioSubTab.CREATOR_DASHBOARD) }
+                        .testTag("studio_tab_creator_dashboard"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Dashboard",
+                        color = if (uiState.activeStudioMode == StudioSubTab.CREATOR_DASHBOARD) Color.White else TelegramTextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                // 2. AI Video Hook Studio Tab
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(
+                            if (uiState.activeStudioMode == StudioSubTab.HOOK_STUDIO)
+                                TelegramBlue.copy(alpha = 0.35f)
+                            else Color.Transparent
+                        )
+                        .clickable { viewModel.setStudioSubTab(StudioSubTab.HOOK_STUDIO) }
+                        .testTag("studio_tab_ai_hook_studio"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Hook AI",
+                        color = if (uiState.activeStudioMode == StudioSubTab.HOOK_STUDIO) Color.White else TelegramTextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                // 3. AI Enhancer Tab
+                Box(
+                    modifier = Modifier
+                        .weight(1.1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(20.dp))
+                        .then(
+                            if (uiState.activeStudioMode == StudioSubTab.AI_ENHANCER) {
+                                Modifier.background(
+                                    Brush.linearGradient(
+                                        listOf(TelegramBlue.copy(alpha = 0.5f), TelegramCyanAccent.copy(alpha = 0.4f))
+                                    )
+                                )
+                            } else Modifier.background(Color.Transparent)
+                        )
+                        .clickable { viewModel.setStudioSubTab(StudioSubTab.AI_ENHANCER) }
+                        .testTag("studio_tab_ai_enhancer"),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Enhancer ✨",
+                        color = if (uiState.activeStudioMode == StudioSubTab.AI_ENHANCER) Color.White else TelegramCyanAccent,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                // 4. Videos Library Tab
+                Box(
+                    modifier = Modifier
+                        .weight(0.9f)
                         .fillMaxHeight()
                         .clip(RoundedCornerShape(20.dp))
                         .background(
@@ -83,61 +193,12 @@ fun VideoStudioScreen(
                         .testTag("studio_tab_long_videos"),
                     contentAlignment = Alignment.Center
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayCircle,
-                            contentDescription = null,
-                            tint = if (uiState.activeStudioMode == StudioSubTab.LONG_VIDEOS) TelegramBlueBright else TelegramTextSecondary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "Long Videos",
-                            color = if (uiState.activeStudioMode == StudioSubTab.LONG_VIDEOS) Color.White else TelegramTextSecondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                // AI Video Hook Studio Tab
-                Box(
-                    modifier = Modifier
-                        .weight(1.2f)
-                        .fillMaxHeight()
-                        .clip(RoundedCornerShape(20.dp))
-                        .then(
-                            if (uiState.activeStudioMode == StudioSubTab.HOOK_STUDIO) {
-                                Modifier.background(
-                                    Brush.linearGradient(
-                                        listOf(TelegramBlue.copy(alpha = 0.5f), TelegramCyanAccent.copy(alpha = 0.4f))
-                                    )
-                                )
-                            } else Modifier
-                        )
-                        .clickable { viewModel.setStudioSubTab(StudioSubTab.HOOK_STUDIO) }
-                        .testTag("studio_tab_ai_hook_studio"),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            tint = if (uiState.activeStudioMode == StudioSubTab.HOOK_STUDIO) TelegramCyanAccent else TelegramTextSecondary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "AI Hook Studio",
-                            color = if (uiState.activeStudioMode == StudioSubTab.HOOK_STUDIO) Color.White else TelegramTextSecondary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                    Text(
+                        text = "VODs",
+                        color = if (uiState.activeStudioMode == StudioSubTab.LONG_VIDEOS) Color.White else TelegramTextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -148,11 +209,39 @@ fun VideoStudioScreen(
             label = "studio_content"
         ) { mode ->
             when (mode) {
-                StudioSubTab.LONG_VIDEOS -> {
-                    LongVideosStreamingView(uiState = uiState, viewModel = viewModel)
+                StudioSubTab.CREATOR_DASHBOARD -> {
+                    CreatorDashboardView(
+                        dashboardData = uiState.creatorDashboard,
+                        profile = uiState.profile,
+                        monetization = uiState.monetization,
+                        activeSubTab = uiState.dashboardActiveSubTab,
+                        onSelectSubTab = { viewModel.setDashboardSubTab(it) },
+                        selectedTimeRange = uiState.analyticsTimeRange,
+                        onSelectTimeRange = { viewModel.setAnalyticsTimeRange(it) },
+                        onUploadClick = { viewModel.openCameraDialog(true) },
+                        onLaunchHookStudio = { viewModel.setStudioSubTab(StudioSubTab.HOOK_STUDIO) },
+                        onOpenMonetization = { viewModel.selectTab(4) },
+                        onHeartComment = { viewModel.toggleHeartComment(it) },
+                        onReplyComment = { id, reply -> viewModel.replyToPriorityComment(id, reply) },
+                        onOpenMindsetHub = { viewModel.openCreatorMindsetDialog(true) }
+                    )
                 }
                 StudioSubTab.HOOK_STUDIO -> {
                     AiVideoHookStudioView(uiState = uiState, viewModel = viewModel)
+                }
+                StudioSubTab.AI_ENHANCER -> {
+                    VideoAiEnhancerView(
+                        jobs = uiState.videoEnhancementJobs,
+                        geminiOptimization = uiState.geminiScriptOptimization,
+                        isGeminiOptimizing = uiState.isGeminiOptimizing,
+                        onRunGeminiScriptDoctor = { viewModel.runGeminiScriptDoctor(it) },
+                        onStartEnhancementJob = { tool, title, settings ->
+                            viewModel.addVideoEnhancementJob(tool, title, settings)
+                        }
+                    )
+                }
+                StudioSubTab.LONG_VIDEOS -> {
+                    LongVideosStreamingView(uiState = uiState, viewModel = viewModel)
                 }
             }
         }

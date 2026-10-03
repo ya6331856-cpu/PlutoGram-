@@ -9,6 +9,7 @@ import com.example.data.SampleData
 import com.example.firebase.AuthState
 import com.example.firebase.FirebaseManager
 import com.example.model.*
+import com.example.service.GeminiVideoAiService
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -80,17 +81,55 @@ data class TelePulseUiState(
     val activeCallAvatar: String = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
     val isCallVideo: Boolean = false,
     // CameraX Live Capture
-    val isCameraDialogOpen: Boolean = false
+    val isCameraDialogOpen: Boolean = false,
+    // Strict Ultra-HD & Zero Quality Drop Video Engine
+    val isStrictQualityMode: Boolean = true,
+    val selectedQualityPreset: VideoQualityPreset = VideoQualityPreset.FULL_HD_1080P,
+    val networkBandwidth: NetworkBandwidthState = NetworkBandwidthState.HIGH_SPEED_5G,
+    val simulatedSpeedMbps: Float = 45.0f,
+    val isBufferingDueToQualityLock: Boolean = false,
+    val bufferProgressPercent: Int = 100,
+    val bufferStatusMessage: String = "",
+    // Creator Monetization & Partner Program
+    val monetization: CreatorMonetizationState = SampleData.initialMonetizationState,
+    val isSuperThanksDialogOpen: Boolean = false,
+    val activeTippingVideoTitle: String = "",
+    val activeTippingCreatorName: String = "",
+    val selectedGiftTier: SuperThanksGiftTier = SampleData.superThanksGiftTiers[1],
+    val isPayoutModalOpen: Boolean = false,
+    val payoutStatusNotice: String? = null,
+    val creatorDashboard: CreatorDashboardData = SampleData.initialCreatorDashboardData,
+    val isCreatorMindsetDialogOpen: Boolean = false,
+    val escrowOrders: List<HireOrder> = SampleData.initialEscrowOrders,
+    val creatorMinutesConsumedToday: Int = 18,
+    val creatorMinutesCreatedToday: Int = 45,
+    // Fan Tipping in Feed & Creator Analytics & Payout History
+    val isTipDialogOpen: Boolean = false,
+    val tipTargetCreatorName: String = "",
+    val tipTargetCreatorAvatar: String = "",
+    val tipTargetContentTitle: String = "",
+    val dashboardActiveSubTab: Int = 0, // 0 = Overview, 1 = Analytics, 2 = Payout History
+    val analyticsTimeRange: String = "28D", // "7D", "28D", "90D", "365D"
+    // Subscription Tiers & Video AI Enhancements
+    val subscriptionTiers: List<SubscriptionTier> = SampleData.initialSubscriptionTiers,
+    val activeSubscriptionTierId: String = "tier_silver",
+    val isSubscriptionModalOpen: Boolean = false,
+    val videoEnhancementJobs: List<VideoEnhancementJob> = SampleData.initialEnhancementJobs,
+    val geminiScriptOptimization: GeminiScriptOptimization? = null,
+    val isGeminiOptimizing: Boolean = false
 )
 
 enum class StudioSubTab {
-    LONG_VIDEOS,
-    HOOK_STUDIO
+    CREATOR_DASHBOARD,
+    HOOK_STUDIO,
+    AI_ENHANCER,
+    LONG_VIDEOS
 }
 
 class TelePulseViewModel(application: Application) : AndroidViewModel(application) {
 
     val firebaseManager = FirebaseManager(application)
+    val geminiAiService = GeminiVideoAiService(application)
     private val _uiState = MutableStateFlow(TelePulseUiState())
     val uiState: StateFlow<TelePulseUiState> = _uiState.asStateFlow()
 
@@ -818,6 +857,380 @@ class TelePulseViewModel(application: Application) : AndroidViewModel(applicatio
             it.copy(
                 stories = listOf(newStory) + it.stories.filter { s -> s.authorName != "You" },
                 isCameraDialogOpen = false
+            )
+        }
+    }
+
+    // Strict Quality & Zero Drop Video Playback Control
+    fun setStrictQualityMode(enabled: Boolean) {
+        _uiState.update {
+            it.copy(
+                isStrictQualityMode = enabled,
+                isBufferingDueToQualityLock = if (!enabled) false else it.isBufferingDueToQualityLock
+            )
+        }
+    }
+
+    fun setQualityPreset(preset: VideoQualityPreset) {
+        _uiState.update {
+            it.copy(selectedQualityPreset = preset)
+        }
+    }
+
+    fun simulateSlowNetworkToggle() {
+        val current = _uiState.value
+        val isCurrentlySlow = current.networkBandwidth == NetworkBandwidthState.SLOW_NETWORK
+
+        if (isCurrentlySlow) {
+            // Restore High Speed
+            _uiState.update {
+                it.copy(
+                    networkBandwidth = NetworkBandwidthState.HIGH_SPEED_5G,
+                    simulatedSpeedMbps = 45.0f,
+                    isBufferingDueToQualityLock = false,
+                    bufferProgressPercent = 100,
+                    bufferStatusMessage = "High-speed 5G network connected. Playing in native ${it.selectedQualityPreset.badge}."
+                )
+            }
+        } else {
+            // Drop Network Speed to Slow 3G (1.8 Mbps)
+            val reqSpeed = current.selectedQualityPreset.minSpeedMbps
+            _uiState.update {
+                it.copy(
+                    networkBandwidth = NetworkBandwidthState.SLOW_NETWORK,
+                    simulatedSpeedMbps = 1.8f,
+                    isBufferingDueToQualityLock = current.isStrictQualityMode,
+                    bufferProgressPercent = 20,
+                    bufferStatusMessage = "Network dropped to 1.8 Mbps (Need ${reqSpeed} Mbps for ${current.selectedQualityPreset.badge}). Video paused to protect 100% crisp high quality."
+                )
+            }
+
+            if (current.isStrictQualityMode) {
+                // High-quality progressive buffering cycle
+                viewModelScope.launch {
+                    delay(1200)
+                    _uiState.update { it.copy(bufferProgressPercent = 45) }
+                    delay(1400)
+                    _uiState.update { it.copy(bufferProgressPercent = 75) }
+                    delay(1600)
+                    _uiState.update {
+                        it.copy(
+                            bufferProgressPercent = 100,
+                            isBufferingDueToQualityLock = false,
+                            bufferStatusMessage = "Buffered required high-definition segment. Resuming pristine playback."
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun retryHighQualityBuffer() {
+        _uiState.update {
+            it.copy(
+                isBufferingDueToQualityLock = true,
+                bufferProgressPercent = 10,
+                bufferStatusMessage = "Refreshing high-speed buffer chunks at ${it.selectedQualityPreset.badge}..."
+            )
+        }
+        viewModelScope.launch {
+            delay(1000)
+            _uiState.update { it.copy(bufferProgressPercent = 55) }
+            delay(1200)
+            _uiState.update {
+                it.copy(
+                    bufferProgressPercent = 100,
+                    isBufferingDueToQualityLock = false
+                )
+            }
+        }
+    }
+
+    // --- Smart Creator Monetization & Super Thanks ---
+    fun openSuperThanksDialog(videoTitle: String, creatorName: String) {
+        _uiState.update {
+            it.copy(
+                isSuperThanksDialogOpen = true,
+                activeTippingVideoTitle = videoTitle,
+                activeTippingCreatorName = creatorName
+            )
+        }
+    }
+
+    fun closeSuperThanksDialog() {
+        _uiState.update { it.copy(isSuperThanksDialogOpen = false) }
+    }
+
+    fun selectGiftTier(tier: SuperThanksGiftTier) {
+        _uiState.update { it.copy(selectedGiftTier = tier) }
+    }
+
+    fun sendSuperThanksTip(tier: SuperThanksGiftTier, message: String) {
+        _uiState.update { state ->
+            val prevMon = state.monetization
+            val updatedMon = prevMon.copy(
+                availableBalance = prevMon.availableBalance + tier.usdAmount,
+                totalLifetimeEarnings = prevMon.totalLifetimeEarnings + tier.usdAmount,
+                starsReceived = prevMon.starsReceived + tier.stars,
+                revenueBreakdown = prevMon.revenueBreakdown.copy(
+                    superThanksAndStars = prevMon.revenueBreakdown.superThanksAndStars + tier.usdAmount
+                )
+            )
+            state.copy(
+                monetization = updatedMon,
+                isSuperThanksDialogOpen = false,
+                payoutStatusNotice = "🎉 Sent ${tier.stars} Stars ($${String.format(java.util.Locale.US, "%.2f", tier.usdAmount)}) to ${state.activeTippingCreatorName}!"
+            )
+        }
+    }
+
+    fun toggleVideoMonetization(videoId: String) {
+        _uiState.update { state ->
+            val updatedList = state.monetization.videoEarningsList.map { item ->
+                if (item.videoId == videoId) item.copy(isMonetized = !item.isMonetized) else item
+            }
+            state.copy(monetization = state.monetization.copy(videoEarningsList = updatedList))
+        }
+    }
+
+    fun toggleGlobalMonetization(enabled: Boolean) {
+        _uiState.update { state ->
+            state.copy(monetization = state.monetization.copy(isMonetizationEnabledGlobal = enabled))
+        }
+    }
+
+    fun openPayoutModal(open: Boolean) {
+        _uiState.update { it.copy(isPayoutModalOpen = open) }
+    }
+
+    fun requestWithdrawal(amount: Double, gateway: PayoutGateway, destinationAccount: String) {
+        _uiState.update { state ->
+            val current = state.monetization
+            if (amount <= 0 || amount > current.availableBalance) {
+                state.copy(payoutStatusNotice = "⚠️ Invalid withdrawal amount. Must be between $1 and $${String.format(java.util.Locale.US, "%.2f", current.availableBalance)}")
+            } else {
+                val newPayout = PayoutRecord(
+                    id = "p_${System.currentTimeMillis()}",
+                    date = "Today",
+                    amount = amount,
+                    method = "${gateway.title} ($destinationAccount)",
+                    status = "Processing"
+                )
+                val updatedHistory = listOf(newPayout) + current.payoutHistory
+                state.copy(
+                    monetization = current.copy(
+                        availableBalance = current.availableBalance - amount,
+                        payoutHistory = updatedHistory
+                    ),
+                    isPayoutModalOpen = false,
+                    payoutStatusNotice = "✅ Withdrawal of $${String.format(java.util.Locale.US, "%.2f", amount)} initiated via ${gateway.title}! Funds will arrive in ${gateway.processingTime}."
+                )
+            }
+        }
+    }
+
+    fun clearPayoutNotice() {
+        _uiState.update { it.copy(payoutStatusNotice = null) }
+    }
+
+    fun toggleHeartComment(commentId: String) {
+        _uiState.update { state ->
+            val updated = state.creatorDashboard.priorityComments.map { comment ->
+                if (comment.id == commentId) comment.copy(isHeartedByCreator = !comment.isHeartedByCreator)
+                else comment
+            }
+            state.copy(creatorDashboard = state.creatorDashboard.copy(priorityComments = updated))
+        }
+    }
+
+    fun replyToPriorityComment(commentId: String, replyText: String) {
+        _uiState.update { state ->
+            val updated = state.creatorDashboard.priorityComments.map { comment ->
+                if (comment.id == commentId) comment.copy(creatorReply = replyText)
+                else comment
+            }
+            state.copy(
+                creatorDashboard = state.creatorDashboard.copy(priorityComments = updated),
+                payoutStatusNotice = "💬 Replied to comment!"
+            )
+        }
+    }
+
+    fun openCreatorMindsetDialog(open: Boolean) {
+        _uiState.update { it.copy(isCreatorMindsetDialogOpen = open) }
+    }
+
+    fun releaseMilestone(orderId: String, milestoneTitle: String) {
+        _uiState.update { state ->
+            val order = state.escrowOrders.find { it.id == orderId } ?: return@update state
+            val milestone = order.milestones.find { it.title == milestoneTitle } ?: return@update state
+            val milestoneAmount = (order.totalAmount * milestone.percentage) / 100.0
+
+            val updatedMilestones = order.milestones.map {
+                if (it.title == milestoneTitle) it.copy(isCompleted = true)
+                else it
+            }
+            val allCompleted = updatedMilestones.all { it.isCompleted }
+            val updatedOrder = order.copy(
+                milestones = updatedMilestones,
+                status = if (allCompleted) "Completed & Paid" else "In Progress (Milestone Released)"
+            )
+            val updatedOrders = state.escrowOrders.map {
+                if (it.id == orderId) updatedOrder else it
+            }
+
+            val newMonetization = state.monetization.copy(
+                availableBalance = state.monetization.availableBalance + milestoneAmount,
+                totalLifetimeEarnings = state.monetization.totalLifetimeEarnings + milestoneAmount
+            )
+
+            viewModelScope.launch {
+                firebaseManager.saveHireOrder(updatedOrder)
+                firebaseManager.saveCreatorProfile(state.profile.copy(
+                    totalEarnings = state.profile.totalEarnings + milestoneAmount
+                ))
+            }
+
+            state.copy(
+                escrowOrders = updatedOrders,
+                monetization = newMonetization,
+                payoutStatusNotice = "🎉 Escrow Released: +$${String.format(java.util.Locale.US, "%.2f", milestoneAmount)} added to available balance!"
+            )
+        }
+    }
+
+    fun openTipCreatorDialog(creatorName: String, creatorAvatar: String, contentTitle: String) {
+        _uiState.update {
+            it.copy(
+                isTipDialogOpen = true,
+                tipTargetCreatorName = creatorName,
+                tipTargetCreatorAvatar = creatorAvatar,
+                tipTargetContentTitle = contentTitle
+            )
+        }
+    }
+
+    fun closeTipDialog() {
+        _uiState.update { it.copy(isTipDialogOpen = false) }
+    }
+
+    fun processFanTip(amount: Double, gateway: String, message: String) {
+        _uiState.update { state ->
+            val timestamp = java.text.SimpleDateFormat("MMM dd, yyyy • hh:mm a", java.util.Locale.US).format(java.util.Date())
+            val newRecord = PayoutRecord(
+                id = "tip_${System.currentTimeMillis()}",
+                date = timestamp,
+                amount = amount,
+                method = gateway,
+                status = "Received ✅ (Fan Tip)"
+            )
+
+            val newPriorityComment = CreatorPriorityComment(
+                id = "tip_cm_${System.currentTimeMillis()}",
+                author = "Generous Fan",
+                authorAvatar = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200",
+                timeAgo = "Just now",
+                content = if (message.isNotBlank()) message else "Sent a $$amount Tip via $gateway!",
+                videoTitle = state.tipTargetContentTitle.ifBlank { "Feed Post" },
+                isSuperThanks = true,
+                starsTipped = (amount * 50).toInt(),
+                isHeartedByCreator = true,
+                creatorReply = "Thank you so much for the support! 🙏"
+            )
+
+            val updatedHistory = listOf(newRecord) + state.monetization.payoutHistory
+            val updatedMonetization = state.monetization.copy(
+                availableBalance = state.monetization.availableBalance + amount,
+                totalLifetimeEarnings = state.monetization.totalLifetimeEarnings + amount,
+                payoutHistory = updatedHistory
+            )
+
+            val updatedChannelOverview = state.creatorDashboard.channelOverview.copy(
+                estimatedRevenue28d = state.creatorDashboard.channelOverview.estimatedRevenue28d + amount
+            )
+
+            val updatedComments = listOf(newPriorityComment) + state.creatorDashboard.priorityComments
+
+            // Sync with Firestore in background
+            viewModelScope.launch {
+                firebaseManager.saveCreatorProfile(state.profile.copy(
+                    totalEarnings = state.profile.totalEarnings + amount
+                ))
+            }
+
+            state.copy(
+                isTipDialogOpen = false,
+                monetization = updatedMonetization,
+                creatorDashboard = state.creatorDashboard.copy(
+                    channelOverview = updatedChannelOverview,
+                    priorityComments = updatedComments
+                ),
+                payoutStatusNotice = "🎉 You tipped $${String.format(java.util.Locale.US, "%.2f", amount)}! Creator dashboard balance updated!"
+            )
+        }
+    }
+
+    fun setDashboardSubTab(subTab: Int) {
+        _uiState.update { it.copy(dashboardActiveSubTab = subTab) }
+    }
+
+    fun setAnalyticsTimeRange(range: String) {
+        _uiState.update { it.copy(analyticsTimeRange = range) }
+    }
+
+    fun openSubscriptionModal(open: Boolean) {
+        _uiState.update { it.copy(isSubscriptionModalOpen = open) }
+    }
+
+    fun selectSubscriptionTier(tier: SubscriptionTier, isYearly: Boolean) {
+        _uiState.update { state ->
+            val price = if (isYearly) tier.priceYearly else tier.priceMonthly
+            val updatedTiers = state.subscriptionTiers.map {
+                it.copy(isCurrentTier = it.id == tier.id)
+            }
+            val notice = if (price > 0.0) {
+                "🎉 Subscribed to ${tier.name}! (${if (isYearly) "$$price/yr" else "$$price/mo"})"
+            } else {
+                "Switched to Free Tier."
+            }
+
+            state.copy(
+                activeSubscriptionTierId = tier.id,
+                subscriptionTiers = updatedTiers,
+                isSubscriptionModalOpen = false,
+                payoutStatusNotice = notice
+            )
+        }
+    }
+
+    fun runGeminiScriptDoctor(scriptOrTopic: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isGeminiOptimizing = true) }
+            val result = geminiAiService.optimizeScriptAndHooks(scriptOrTopic)
+            _uiState.update {
+                it.copy(
+                    isGeminiOptimizing = false,
+                    geminiScriptOptimization = result,
+                    payoutStatusNotice = "⚡ Gemini 3.5 Flash: Viral Score ${result.viralScore}/100 analyzed!"
+                )
+            }
+        }
+    }
+
+    fun addVideoEnhancementJob(toolType: VideoAiToolType, title: String, settings: String) {
+        val newJob = VideoEnhancementJob(
+            id = "job_${System.currentTimeMillis()}",
+            toolType = toolType,
+            videoTitle = title,
+            status = "Completed ✅",
+            progress = 1.0f,
+            metadataSummary = settings,
+            timestamp = "Just now"
+        )
+        _uiState.update {
+            it.copy(
+                videoEnhancementJobs = listOf(newJob) + it.videoEnhancementJobs,
+                payoutStatusNotice = "✨ ${toolType.title} completed on $title!"
             )
         }
     }

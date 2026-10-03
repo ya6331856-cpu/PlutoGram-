@@ -33,6 +33,8 @@ import coil.compose.AsyncImage
 import com.example.model.LongVideo
 import com.example.ui.components.FrostedChip
 import com.example.ui.components.FrostedGlassBox
+import com.example.ui.components.QualityBufferOverlay
+import com.example.ui.components.VideoQualityBadge
 import com.example.ui.theme.*
 import com.example.viewmodel.TelePulseUiState
 import com.example.viewmodel.TelePulseViewModel
@@ -120,30 +122,15 @@ fun LongVideoScreen(
                         )
                     }
 
-                    // Top Quality Pill
-                    Row(
+                    // Top Quality Pill with Strict Zero-Drop indicator
+                    VideoQualityBadge(
+                        preset = uiState.selectedQualityPreset,
+                        isStrictQuality = uiState.isStrictQualityMode,
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .padding(12.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0x99000000))
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(TelegramEmerald)
-                        )
-                        Text(
-                            text = "4K 60fps • HDR",
-                            color = Color.White,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
+                            .padding(12.dp),
+                        onClick = { viewModel.simulateSlowNetworkToggle() }
+                    )
 
                     // Bottom Controls Bar (Scrubber & Timestamps)
                     Column(
@@ -187,6 +174,17 @@ fun LongVideoScreen(
                                 .height(16.dp)
                         )
                     }
+
+                    // Strict Quality Protection Buffering Overlay HUD
+                    QualityBufferOverlay(
+                        isBuffering = uiState.isBufferingDueToQualityLock,
+                        preset = uiState.selectedQualityPreset,
+                        bufferPercent = uiState.bufferProgressPercent,
+                        simulatedSpeedMbps = uiState.simulatedSpeedMbps,
+                        statusMessage = uiState.bufferStatusMessage,
+                        onRetryBuffer = { viewModel.retryHighQualityBuffer() },
+                        onRestoreSpeed = { viewModel.simulateSlowNetworkToggle() }
+                    )
                 }
             }
         }
@@ -354,6 +352,20 @@ fun LongVideoScreen(
                                 )
                             }
 
+                            // Creator Tool: Video Monetization & RPM
+                            item {
+                                val itemEarnings = uiState.monetization.videoEarningsList.find { it.videoId == currentVideo.id }?.earnings ?: 840.50
+                                CreatorToolChip(
+                                    icon = Icons.Default.MonetizationOn,
+                                    label = "Earned $${String.format(java.util.Locale.US, "%.2f", itemEarnings)}",
+                                    tint = TelegramEmerald,
+                                    onClick = {
+                                        viewModel.selectTab(4)
+                                    },
+                                    tag = "tool_video_monetization"
+                                )
+                            }
+
                             // Creator Tool 2: Transcribe Audio (gemini-3.5-transcribe)
                             item {
                                 CreatorToolChip(
@@ -440,6 +452,23 @@ fun LongVideoScreen(
                                     label = "Share",
                                     onClick = { showShareDialog = true },
                                     tag = "viewer_action_share"
+                                )
+                            }
+
+                            // 5. Super Thanks & Direct Stars Tipping
+                            item {
+                                ViewerActionChip(
+                                    icon = Icons.Default.Stars,
+                                    label = "Thanks ⭐",
+                                    isActive = true,
+                                    activeTint = Color(0xFFFFD700),
+                                    onClick = {
+                                        viewModel.openSuperThanksDialog(
+                                            currentVideo.title,
+                                            currentVideo.channelName
+                                        )
+                                    },
+                                    tag = "viewer_action_super_thanks"
                                 )
                             }
 

@@ -117,6 +117,9 @@ class FirebaseManager(private val context: Context) {
             } else {
                 Result.failure(Exception("Unsupported credential type: ${credential.type}"))
             }
+        } catch (e: androidx.credentials.exceptions.NoCredentialException) {
+            Log.w(tag, "No credentials found for Google Sign-In: ${e.message}")
+            Result.failure(e)
         } catch (e: Exception) {
             Log.e(tag, "Google Sign-In failed", e)
             Result.failure(e)

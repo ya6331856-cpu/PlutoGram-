@@ -33,6 +33,8 @@ import coil.compose.AsyncImage
 import com.example.model.Reel
 import com.example.ui.components.AudioWaveformVisualizer
 import com.example.ui.components.FrostedGlassBox
+import com.example.ui.components.QualityBufferOverlay
+import com.example.ui.components.VideoQualityBadge
 import com.example.ui.theme.*
 import com.example.viewmodel.StudioSubTab
 import com.example.viewmodel.TelePulseUiState
@@ -71,6 +73,9 @@ fun ReelsScreen(
                 onSendHookToStudio = {
                     viewModel.selectTab(2) // Jump to AI Studio
                     viewModel.setStudioSubTab(StudioSubTab.HOOK_STUDIO)
+                },
+                onSuperThanks = {
+                    viewModel.openSuperThanksDialog(reel.caption, reel.creatorName)
                 }
             )
         }
@@ -92,8 +97,16 @@ fun ReelsScreen(
             )
 
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                // Strict HD Quality Status Badge
+                VideoQualityBadge(
+                    preset = uiState.selectedQualityPreset,
+                    isStrictQuality = uiState.isStrictQualityMode,
+                    onClick = { viewModel.simulateSlowNetworkToggle() }
+                )
+
                 Box(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
@@ -110,6 +123,17 @@ fun ReelsScreen(
                 }
             }
         }
+
+        // Strict Quality Protection Buffering Overlay HUD
+        QualityBufferOverlay(
+            isBuffering = uiState.isBufferingDueToQualityLock,
+            preset = uiState.selectedQualityPreset,
+            bufferPercent = uiState.bufferProgressPercent,
+            simulatedSpeedMbps = uiState.simulatedSpeedMbps,
+            statusMessage = uiState.bufferStatusMessage,
+            onRetryBuffer = { viewModel.retryHighQualityBuffer() },
+            onRestoreSpeed = { viewModel.simulateSlowNetworkToggle() }
+        )
     }
 }
 
@@ -118,7 +142,8 @@ fun ReelItem(
     reel: Reel,
     onLike: () -> Unit,
     onFollow: () -> Unit,
-    onSendHookToStudio: () -> Unit
+    onSendHookToStudio: () -> Unit,
+    onSuperThanks: () -> Unit = {}
 ) {
     var isPlaying by remember { mutableStateOf(true) }
     var showHeartAnimation by remember { mutableStateOf(false) }
@@ -263,6 +288,15 @@ fun ReelItem(
                 tint = Color.White,
                 onClick = { },
                 tag = "reel_share_${reel.id}"
+            )
+
+            // Super Thanks / Creator Stars Tipping
+            ReelActionItem(
+                icon = Icons.Default.Stars,
+                label = "Tip ⭐",
+                tint = Color(0xFFFFD700),
+                onClick = onSuperThanks,
+                tag = "reel_tip_${reel.id}"
             )
 
             // AI Hook Studio Quick Action
@@ -602,8 +636,8 @@ fun ReelActionItem(
 
 private fun formatCount(count: Int): String {
     return when {
-        count >= 1_000_000 -> String.format("%.1fM", count / 1_000_000.0)
-        count >= 1_000 -> String.format("%.1fK", count / 1_000.0)
+        count >= 1_000_000 -> String.format(java.util.Locale.US, "%.1fM", count / 1_000_000.0)
+        count >= 1_000 -> String.format(java.util.Locale.US, "%.1fK", count / 1_000.0)
         else -> count.toString()
     }
 }

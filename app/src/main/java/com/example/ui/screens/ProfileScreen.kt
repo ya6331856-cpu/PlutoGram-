@@ -33,6 +33,7 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.example.model.FreelanceService
 import com.example.model.PayoutRecord
+import com.example.ui.components.CreatorMonetizationHub
 import com.example.ui.components.FrostedGlassBox
 import com.example.ui.theme.*
 import com.example.viewmodel.TelePulseUiState
@@ -41,7 +42,8 @@ import com.example.viewmodel.TelePulseViewModel
 enum class InstagramProfileTab {
     GRID_POSTS,
     REELS,
-    SERVICES
+    SERVICES,
+    MONETIZATION
 }
 
 data class StoryHighlight(
@@ -325,6 +327,55 @@ fun ProfileScreen(
                         }
                     }
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Creator Studio & Analytics Direct Access Card
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(
+                                Brush.horizontalGradient(
+                                    listOf(
+                                        TelegramBlue.copy(alpha = 0.35f),
+                                        TelegramCyanAccent.copy(alpha = 0.25f)
+                                    )
+                                )
+                            )
+                            .border(1.dp, TelegramCyanAccent.copy(alpha = 0.4f), RoundedCornerShape(8.dp))
+                            .clickable {
+                                viewModel.selectTab(2)
+                                viewModel.setStudioSubTab(com.example.viewmodel.StudioSubTab.CREATOR_DASHBOARD)
+                            }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Dashboard,
+                                contentDescription = null,
+                                tint = TelegramCyanAccent,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = "Creator Studio & Analytics Dashboard",
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = TelegramCyanAccent,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Story Highlights
@@ -397,6 +448,12 @@ fun ProfileScreen(
                         onClick = { selectedTab = InstagramProfileTab.SERVICES },
                         tag = "tab_profile_services"
                     )
+                    InstagramTabItem(
+                        icon = Icons.Default.MonetizationOn,
+                        isSelected = selectedTab == InstagramProfileTab.MONETIZATION,
+                        onClick = { selectedTab = InstagramProfileTab.MONETIZATION },
+                        tag = "tab_profile_monetization"
+                    )
                 }
             }
 
@@ -423,6 +480,16 @@ fun ProfileScreen(
                         ServicesListSection(
                             services = profile.services,
                             onHire = { viewModel.openHireService(it) }
+                        )
+                    }
+                }
+                InstagramProfileTab.MONETIZATION -> {
+                    item {
+                        CreatorMonetizationHub(
+                            monetization = uiState.monetization,
+                            onToggleVideoMonetization = { viewModel.toggleVideoMonetization(it) },
+                            onToggleGlobalMonetization = { viewModel.toggleGlobalMonetization(it) },
+                            onOpenWithdrawal = { viewModel.openPayoutModal(true) }
                         )
                     }
                 }

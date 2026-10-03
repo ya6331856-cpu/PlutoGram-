@@ -395,4 +395,310 @@ object SampleData {
         PayoutRecord("p3", "Sep 22, 2026", 1150.00, "Razorpay Express", "Completed"),
         PayoutRecord("p4", "Sep 15, 2026", 320.00, "Stripe Connect", "Completed")
     )
+
+    val superThanksGiftTiers = listOf(
+        SuperThanksGiftTier("gift_50", 50, 1.00, "⭐", "50 Stars (Heart Spark)", 0xFFFFD700),
+        SuperThanksGiftTier("gift_250", 250, 5.00, "🚀", "250 Stars (Rocket Boost)", 0xFF00E5FF),
+        SuperThanksGiftTier("gift_1000", 1000, 20.00, "🔥", "1,000 Stars (Viral Flame)", 0xFFFF5722),
+        SuperThanksGiftTier("gift_5000", 5000, 100.00, "👑", "5,000 Stars (Creator Crown)", 0xFFAB47BC)
+    )
+
+    val initialMonetizationState = CreatorMonetizationState(
+        isPartnerVerified = true,
+        partnerTier = "Plutogram Gold Partner",
+        totalLifetimeEarnings = 14850.75,
+        availableBalance = 2340.50,
+        monthlyRevenue = 3420.00,
+        averageRpm = 4.85,
+        monetizedViewsCount = 1845000L,
+        watchTimeHours = 48200L,
+        activeMembershipsCount = 142,
+        membershipMonthlyFee = 4.99,
+        starsReceived = 48500L,
+        defaultAdSplitRatio = 0.70f,
+        isMonetizationEnabledGlobal = true,
+        partnerMilestones = PartnerEligibility(
+            currentFollowers = 463500,
+            requiredFollowers = 1000,
+            currentWatchHours = 48200,
+            requiredWatchHours = 4000,
+            communityStrikes = 0,
+            twoStepVerification = true,
+            isEligible = true
+        ),
+        revenueBreakdown = RevenueBreakdown(
+            adRevenue = 1820.00,
+            superThanksAndStars = 890.50,
+            channelMemberships = 510.00,
+            brandSponsorships = 200.00
+        ),
+        videoEarningsList = listOf(
+            VideoMonetizationItem(
+                videoId = "v1",
+                title = "Cinematic Lighting Masterclass: 3-Point Light in Unreal 5.4",
+                views = "480K views",
+                viewsCount = 480000L,
+                earnings = 840.50,
+                rpm = 5.20,
+                isMonetized = true,
+                midrollAdsEnabled = true,
+                superThanksCount = 68
+            ),
+            VideoMonetizationItem(
+                videoId = "v2",
+                title = "Sound Design Secrets: Crafting Sub-Bass Impacts That Rattle Phones",
+                views = "210K views",
+                viewsCount = 210000L,
+                earnings = 412.00,
+                rpm = 4.65,
+                isMonetized = true,
+                midrollAdsEnabled = true,
+                superThanksCount = 32
+            ),
+            VideoMonetizationItem(
+                videoId = "v3",
+                title = "1v5 Valorant Clutch Breakdown: Frame by Frame Sound Cue Anticipation",
+                views = "890K views",
+                viewsCount = 890000L,
+                earnings = 1320.25,
+                rpm = 4.90,
+                isMonetized = true,
+                midrollAdsEnabled = true,
+                superThanksCount = 114
+            ),
+            VideoMonetizationItem(
+                videoId = "v4",
+                title = "Tokyo Rain VFX: Particle Collision & Wet Road Reflections in Blender",
+                views = "140K views",
+                viewsCount = 140000L,
+                earnings = 285.00,
+                rpm = 4.40,
+                isMonetized = true,
+                midrollAdsEnabled = false,
+                superThanksCount = 18
+            )
+        ),
+        payoutHistory = initialPayouts
+    )
+
+    val initialCreatorDashboardData = CreatorDashboardData(
+        channelOverview = ChannelOverviewMetrics(
+            subscribersCount = 463520L,
+            subscribersGrowth28d = 1240,
+            totalViews28d = 2410500L,
+            viewsGrowthPct = 18.4f,
+            watchTimeHours28d = 142800L,
+            watchTimeGrowthPct = 22.1f,
+            estimatedRevenue28d = 3420.00,
+            revenueGrowthPct = 15.2f,
+            averageRpm = 4.85
+        ),
+        latestUploadPerformance = LatestUploadPerformance(
+            videoId = "v1",
+            title = "Cinematic Lighting Masterclass: 3-Point Light in Unreal 5.4",
+            thumbnail = "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800",
+            uploadTimeAgo = "Uploaded 18 hours ago",
+            rankingAmongLast10 = 1,
+            views = 48250L,
+            typicalViewsRange = "12,000 - 28,000",
+            impressionsCtrPct = 11.8f,
+            averageViewDuration = "4m 32s",
+            averagePercentageViewed = 68.4f,
+            likesCount = 3840,
+            commentsCount = 412
+        ),
+        realTimeActivity = RealTimeActivity(),
+        audienceInsights = AudienceInsights(),
+        priorityComments = listOf(
+            CreatorPriorityComment(
+                id = "cm1",
+                author = "Jordan Reed",
+                authorAvatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200",
+                timeAgo = "2h ago",
+                content = "That bounce light setup with the warm accent completely fixed my dark scenes! Best Unreal tutorial on the platform. Sent a Super Thanks! 🔥",
+                videoTitle = "Cinematic Lighting Masterclass",
+                isSuperThanks = true,
+                starsTipped = 250,
+                isHeartedByCreator = true,
+                creatorReply = "Thanks Jordan! Glad the rim bounce helped!"
+            ),
+            CreatorPriorityComment(
+                id = "cm2",
+                author = "Nadia Vance",
+                authorAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200",
+                timeAgo = "5h ago",
+                content = "Could you do a breakdown on volumetric fog rendering in Blender vs Unreal? Would love your take on render times.",
+                videoTitle = "Tokyo Rain VFX",
+                isSuperThanks = false,
+                starsTipped = 0,
+                isHeartedByCreator = false
+            ),
+            CreatorPriorityComment(
+                id = "cm3",
+                author = "Kaito FX",
+                authorAvatar = "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200",
+                timeAgo = "1d ago",
+                content = "The 3-second hook extraction method you showed in the AI Studio doubled our TikTok retention rate this week. Incredible tool!",
+                videoTitle = "AI Hook Studio Deep Dive",
+                isSuperThanks = true,
+                starsTipped = 1000,
+                isHeartedByCreator = true
+            )
+        ),
+        contentHealthStatus = ContentHealthStatus(
+            copyrightClaimsCount = 0,
+            communityStrikesCount = 0,
+            contentIdProtectionActive = true,
+            isTermsCompliant = true
+        )
+    )
+
+    val initialEscrowOrders = listOf(
+        HireOrder(
+            id = "escrow_ord_101",
+            creatorName = "Alex Vance",
+            creatorHandle = "@alexvance_fx",
+            serviceTitle = "15-Second Viral Hook Batch for Web3 Brand",
+            totalAmount = 750.00,
+            milestones = listOf(
+                Milestone(id = "m101_1", title = "Script & 3s Hook Generation (AI Studio)", amount = 225.0, percentage = 30, isCompleted = true, isFunded = true),
+                Milestone(id = "m101_2", title = "Rough Cut & Kinetic Subtitles", amount = 300.0, percentage = 40, isCompleted = true, isFunded = true),
+                Milestone(id = "m101_3", title = "Final 4K Master & Sound Design", amount = 225.0, percentage = 30, isCompleted = false, isFunded = true)
+            ),
+            status = "Escrow Funded (100% Locked)",
+            creationDate = "Yesterday",
+            projectBrief = "Produce 3 dynamic vertical hooks showcasing instant crypto micropayments for creators.",
+            paymentMethod = "Stripe Connect"
+        ),
+        HireOrder(
+            id = "escrow_ord_102",
+            creatorName = "Alex Vance",
+            creatorHandle = "@alexvance_fx",
+            serviceTitle = "Tokyo Rain VFX Color Grade & Sound FX",
+            totalAmount = 600.00,
+            milestones = listOf(
+                Milestone(id = "m102_1", title = "Color Grade LUTs Preview", amount = 300.0, percentage = 50, isCompleted = true, isFunded = true),
+                Milestone(id = "m102_2", title = "Final Audio Stems & Delivery", amount = 300.0, percentage = 50, isCompleted = false, isFunded = true)
+            ),
+            status = "In Progress",
+            creationDate = "3 days ago",
+            projectBrief = "Atmospheric night cyberpunk rain scene color grading in DaVinci Resolve.",
+            paymentMethod = "Razorpay / UPI"
+        ),
+        HireOrder(
+            id = "escrow_ord_103",
+            creatorName = "Alex Vance",
+            creatorHandle = "@alexvance_fx",
+            serviceTitle = "Unreal Engine 5.4 Lumen Lighting Asset Setup",
+            totalAmount = 500.00,
+            milestones = listOf(
+                Milestone(id = "m103_1", title = "3-Point Bounce Light Scene Files", amount = 500.0, percentage = 100, isCompleted = true, isFunded = true)
+            ),
+            status = "Delivered (Awaiting Client Release)",
+            creationDate = "Oct 1",
+            projectBrief = "Custom studio lighting blueprint template for interior archviz renders.",
+            paymentMethod = "TON Crypto Wallet"
+        )
+    )
+
+    val initialSubscriptionTiers = listOf(
+        SubscriptionTier(
+            id = "tier_free",
+            name = "Free Supporter",
+            priceMonthly = 0.0,
+            priceYearly = 0.0,
+            badgeEmoji = "🌱",
+            badgeColorHex = 0xFF8E9BAE,
+            tagLine = "Standard access to feed & clips",
+            features = listOf(
+                "Standard 1080p video streams",
+                "Public social feed & creator stories",
+                "Community comments & reactions"
+            ),
+            isCurrentTier = false
+        ),
+        SubscriptionTier(
+            id = "tier_bronze",
+            name = "Bronze Fan",
+            priceMonthly = 4.99,
+            priceYearly = 47.90,
+            badgeEmoji = "🥉",
+            badgeColorHex = 0xFFCD7F32,
+            tagLine = "Exclusive videos & member chat perks",
+            features = listOf(
+                "Supporter Loyalty Badge in Live & Comments",
+                "3 Exclusive Member-only Reels/VODs per week",
+                "Priority Comment Highlights on Creator Hub",
+                "Telegram VIP Chat access"
+            ),
+            isCurrentTier = false
+        ),
+        SubscriptionTier(
+            id = "tier_silver",
+            name = "Silver VIP Creator",
+            priceMonthly = 14.99,
+            priceYearly = 143.90,
+            badgeEmoji = "🥈",
+            badgeColorHex = 0xFF00E5FF,
+            tagLine = "Full Video AI Enhancements & 4K Suite",
+            features = listOf(
+                "Everything in Bronze Fan",
+                "4K HDR Neural Upscaler (60fps)",
+                "Kinetic AI Subtitles Engine (Hormozi style)",
+                "Studio Vocal Cleaner (96kHz noise removal)",
+                "Gemini 3.5 Flash Script Doctor & Hook Optimizer",
+                "Early access to escrow freelance gigs"
+            ),
+            isPopular = true,
+            isCurrentTier = true
+        ),
+        SubscriptionTier(
+            id = "tier_gold",
+            name = "Gold Executive Producer",
+            priceMonthly = 49.99,
+            priceYearly = 479.90,
+            badgeEmoji = "👑",
+            badgeColorHex = 0xFFFFD700,
+            tagLine = "Producer credits, 1-on-1 Collabs & Unlimited AI",
+            features = listOf(
+                "Everything in Silver VIP",
+                "$50 Monthly Escrow Collab Credit included",
+                "Executive Producer credit on all long-form videos",
+                "1-on-1 Monthly Video Review stream with creator",
+                "Unlimited Video AI Neural processing jobs",
+                "Direct Telegram Secret Chat hotline"
+            ),
+            isCurrentTier = false
+        )
+    )
+
+    val initialEnhancementJobs = listOf(
+        VideoEnhancementJob(
+            id = "job_enh_1",
+            toolType = VideoAiToolType.UPSCALE_4K,
+            videoTitle = "Tokyo Cyberpunk VFX Master Cut",
+            status = "Completed ✅",
+            progress = 1.0f,
+            metadataSummary = "4K HDR 60fps (Teal & Orange)",
+            timestamp = "10m ago"
+        ),
+        VideoEnhancementJob(
+            id = "job_enh_2",
+            toolType = VideoAiToolType.KINETIC_SUBTITLES,
+            videoTitle = "Viral Hook 3s Teaser Cut",
+            status = "Completed ✅",
+            progress = 1.0f,
+            metadataSummary = "Hormozi Electric Cyan + Bass SFX",
+            timestamp = "45m ago"
+        ),
+        VideoEnhancementJob(
+            id = "job_enh_3",
+            toolType = VideoAiToolType.VOCAL_ISOLATION,
+            videoTitle = "Cinematography Masterclass Audio Stem",
+            status = "Completed ✅",
+            progress = 1.0f,
+            metadataSummary = "Studio Condenser 96kHz (-36dB Hum)",
+            timestamp = "2h ago"
+        )
+    )
 }
